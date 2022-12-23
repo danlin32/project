@@ -1,10 +1,9 @@
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='!', intents=intents)
 voiceChannel = None
-
 
 @client.event
 async def on_ready():
@@ -21,7 +20,7 @@ async def on_message(message):
         await message.channel.send('lmaoo')
 
     if f"<@{352974450205130763}>" in message.content:
-        await message.channel.send(f"<@{message.author.id}> fuck you. dont ping me, you bitch")
+        await message.channel.send(f"<@{message.author.id}> fuck you. dont ping me, you bitch")    
 
 
 @client.command(pass_context=True)
@@ -35,7 +34,10 @@ async def join(ctx):
         channel = ctx.message.author.voice.channel
         global voiceChannel
         if ctx.voice_client:
-            await voiceChannel.move_to(channel)
+            if voiceChannel.channel == channel:
+              await ctx.send("I'm already connected to this channel.")
+            else:
+              await voiceChannel.move_to(channel)
         else:
             voiceChannel = await channel.connect()
     else:
@@ -45,12 +47,14 @@ async def join(ctx):
 @client.command(pass_context=True)
 async def leave(ctx):
     if ctx.voice_client:
-        await ctx.guild.voice_client.disconnect()
-        await ctx.send("I leave voice channel")
-
+        if ctx.voice_client.channel == ctx.author.voice.channel:
+            await ctx.guild.voice_client.disconnect()
+            await ctx.send("I leave voice channel")
+        else:
+            await ctx.send("You are not in the same voice channel as the bot.")
     else:
         await ctx.send("I'm not in a voice channel at this moment")
-
+        
 
 
 client.run()
