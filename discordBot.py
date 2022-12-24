@@ -1,14 +1,22 @@
 import discord
-from discord.ext import tasks, commands
+from discord.ext import commands
+import os
+import asyncio
+import youtube_dl
+
 
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='!', intents=intents)
 voiceChannel = None
 
+voice_client = {}
+yt_dl_opts = {'format': 'bestaudio/best'}
+ytdl = youtube_dl.YoutubeDL(yt_dl_opts)
+
+ffmpeg_options ={'options':"-vn"}
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
-
 
 @client.event
 async def on_message(message):
@@ -20,7 +28,7 @@ async def on_message(message):
         await message.channel.send('lmaoo')
 
     if f"<@{352974450205130763}>" in message.content:
-        await message.channel.send(f"<@{message.author.id}> fuck you. dont ping me, you bitch")    
+        await message.channel.send(f"<@{message.author.id}> fuck you. dont ping me, you bitch")
 
 
 @client.command(pass_context=True)
@@ -34,10 +42,7 @@ async def join(ctx):
         channel = ctx.message.author.voice.channel
         global voiceChannel
         if ctx.voice_client:
-            if voiceChannel.channel == channel:
-              await ctx.send("I'm already connected to this channel.")
-            else:
-              await voiceChannel.move_to(channel)
+            await voiceChannel.move_to(channel)
         else:
             voiceChannel = await channel.connect()
     else:
@@ -47,14 +52,17 @@ async def join(ctx):
 @client.command(pass_context=True)
 async def leave(ctx):
     if ctx.voice_client:
-        if ctx.voice_client.channel == ctx.author.voice.channel:
-            await ctx.guild.voice_client.disconnect()
-            await ctx.send("I leave voice channel")
-        else:
-            await ctx.send("You are not in the same voice channel as the bot.")
+        await ctx.guild.voice_client.disconnect()
+        await ctx.send("I leave voice channel")
+
     else:
         await ctx.send("I'm not in a voice channel at this moment")
-        
 
 
-client.run()
+
+
+
+i love zebras
+
+
+client.run(token)
